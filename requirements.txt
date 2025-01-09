@@ -1,0 +1,3 @@
+gunicorn
+uvicorn
+django==4.2
