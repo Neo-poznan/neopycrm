@@ -1,0 +1,77 @@
+{% load custom_tags %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Звонки</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="{%  static 'css/calls_main.css' %}">
+
+
+</head>
+<body>
+<div class="container">
+    <aside id="left-aside">
+
+    </aside>
+    <main>
+        <h1 class="title">Звонки</h1>
+        <br>
+        <h2 class="title">Групповые звонки</h2>
+        <br>
+        <div class="calls-container">
+            <div class="call-container">
+                <a href="#">
+                    <div class="call">
+                        <p>Звонок начался</p>
+                    </div>
+                </a>
+            </div> 
+           <div class="new-call-container">
+                <a href="#">
+                    <div class="new-call">
+                        <div class="new-call-icon-border"><i class="ri-add-line"></i></div>
+                        <p>Новый звонок</p>
+
+                    </div>
+                </a>
+            </div>    
+        </div>
+
+
+    </main>
+    <aside id="right-aside"> 
+        <div class="private-calls-container">
+            <h2>Личные звонки</h2>
+            <div class="user-scrollbar">
+                {% for user in users_for_private_call %}
+                <div class="user-container">
+                <p>Позвонить</p>
+                    <div class="user-avatar"><img src="" alt=""></div>
+                    <p class="user-name">{{ user.first_name }} {{ user.last_name }}</p>
+                    {% if is_user_online_dict|get_dict_item:user.id %}
+                    <p class="user-status-{{ user.id }}" style="color: green;">Online</p>
+                    {% else %}
+                    <p class="user-status-{{ user.id }}" style="color: red;">Offline</p>
+                    {% endif %}
+                    <hr>
+                </div>
+                {% endfor %}
+
+            </div>
+
+            
+        </div>
+    </aside> 
+</div> 
+<script>
+    let user_id = '{{ request.user.id }}';
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<script src="{% static 'js/calls_main.js' %}"></script>   
+</body>
+</html>
