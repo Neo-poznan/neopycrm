@@ -1,12 +1,16 @@
 import redis
 
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 
+from .models import HashGenerationSequence
+from .use_case import CallsUseCase
 
-redis_client = redis.Redis(host='localhost', port=6379, db=0)
+
 
 
 class CallsMailPageView(LoginRequiredMixin, TemplateView):
@@ -14,16 +18,18 @@ class CallsMailPageView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = {}
-        user_model = get_user_model()
-        all_users = user_model.objects.exclude(id=self.request.user.id)
-        context['users_for_private_call'] = all_users
-        context['is_user_online_dict'] = {}
-        for user in all_users:
-            user_object_in_redis = redis_client.get(user.id)
-            if user_object_in_redis is None:
-                context['is_user_online_dict'][user.id] = False
-            else:
-                context['is_user_online_dict'][user.id] = True
+        use_case = CallsUseCase()
+        return use_case.get_context_for_calls_main_page(self.request.user)
+    
+def create_private_call_room(request):
+    sequence = HashGenerationSequence()
+    new_call_url = HashGenerationSequence.get_hash()
+    return HttpResponseRedirect(reverse_lazy('videocaller:private_call', args=[new_call_url]))
 
-        return context
+
+
+
+def private_call_room_view(request, call_id):
+
+    return render(request, 'videocaller/private_call_room.html')
 

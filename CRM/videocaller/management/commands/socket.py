@@ -2,7 +2,7 @@ import eventlet
 
 from django.core.management.base import BaseCommand
 
-from videocaller.websocket import socketio_app
+from core.websocket import socketio_app
 
 
 class Command(BaseCommand):
