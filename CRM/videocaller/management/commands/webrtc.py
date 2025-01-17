@@ -1,11 +1,11 @@
 from django.core.management.base import BaseCommand
-
-from core.websocket import app
-import eventlet
+from videocaller.webrtc import main
+import asyncio
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        asyncio.run(main())
         print('start')
-        eventlet.wsgi.server(eventlet.listen(('', 5001)), app)
 
+        

@@ -29,6 +29,10 @@ class InMemoryProvider(ABC):
     def get_all_values_from_list(self, list_name: str) -> list:
         pass
 
+    @abstractmethod
+    def add_values_to_list(self, list_name: str, values: list) -> None:
+        pass
+
 
 class RedisInMemoryProvider(InMemoryProvider):
     def __init__(self, redis_client: redis.Redis) -> None:
@@ -54,7 +58,12 @@ class RedisInMemoryProvider(InMemoryProvider):
         self.redis_client.lrem(list_name, 0, value)
 
     def get_all_values_from_list(self, list_name: str) -> list:
-        return self.redis_client.lrange(list_name, 0, -1)
+        byte_values_list = self.redis_client.lrange(list_name, 0, -1)
+        return [value.decode('utf-8') for value in byte_values_list]
+    
+    
+    def add_values_to_list(self, list_name: str, values: list) -> None:
+        self.redis_client.lpush(list_name, *values)
     
 
 class InMemoryUserConnectionStatusRepositoryInterface(ABC):

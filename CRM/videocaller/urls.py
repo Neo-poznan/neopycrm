@@ -5,5 +5,7 @@ app_name = 'videocaller'
 
 urlpatterns = [
     path('', views.CallsMailPageView.as_view(), name='calls'),
-    #path('private-call/<call_id:str>/' , views.PrivateCallRoomView.as_view(), name='private_call'),
+    path('create-private-call/', views.PrivateCallCreationView.as_view(), name='private_call_creation'),
+    path('private-call/<str:call_id>/' , views.private_call_room_view, name='private_call'),
+    path('receive/', views.receive_view, name='receive'),
 ]

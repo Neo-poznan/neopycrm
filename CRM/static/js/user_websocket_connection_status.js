@@ -1,8 +1,4 @@
 const socket = io('http://127.0.0.1:5001', {'transports': ['websocket'], 'query': {'user_id': user_id}});
-socket.on('connect', () => {
-    console.log('connected');
-    window.sessionStorage.setItem('sid', socket.id);
-})
 
 function set_user_connection_status_to_page(id, is_connected) {
     status_label = document.getElementsByClassName('user-status-' + id);
