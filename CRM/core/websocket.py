@@ -38,7 +38,6 @@ def disconnect(sid):
     use_case = UserConnectionStatusUseCase()
     user_id = use_case.pop_data_about_connected_to_websocket_user(sid)
     update_user_connection_status_on_clients(user_id, use_case.is_user_has_websocket_connections(user_id))
-    delete_peer(sid)
     print('disconnect ', sid, 'user_id', user_id)
 
 
@@ -46,17 +45,20 @@ def update_user_connection_status_on_clients(user_id: int, is_connected: bool) -
     sio.emit('user_connection_status', {'user_id': user_id, 'is_connected': is_connected})
 
 
-# Хранилище для RTCPeerConnection
-peers = {}
-relay = MediaRelay()
+@sio.event()
+def created_offer(sid, data):
+    print('Offer: ', data)
+    sio.emit('created_offer', data, skip_sid=sid)
 
-# Обработка подключения клиента
-# Обработка отключения клиента
-def delete_peer(sid):
-    if sid in peers:
-        peers[sid].close()
-        del peers[sid]
+@sio.event()
+def ice_candidates(sid, data):
+    print(f'Сид {sid} отправил сообщение об ice кандидате')
+    print(data)
+    sio.emit('ice_candidates', data, skip_sid=sid)
 
+@sio.event()
+def set_description(sid, data):
+    print(f'Сид {sid} отправил данные на изменение удаленного описания первого пира')
+    sio.emit('set_description', data, skip_sid=sid)
 
-# Обработка ICE-кандидатов
     

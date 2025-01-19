@@ -9,16 +9,13 @@
 <body>
     <main>
         <video src="" id="remote-video" style="width: 1280px;
-        height: 720px;"></video>
-        <button id="connect-button">Connect 
-        </button>
-        <button id="disconnect-button">Disconnect</button>
-        <button id="set-remote-ice-candidate">set remote ice candidate</button>
+        height: 720px; display: block;" autoplay="true"></video>
     </main>
 
     <script>
         const user_id = '{{ user_id }}'
     </script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <script src="{% static 'js/receive.js' %}"></script>
     
