@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+</head>
+<body>
+    <main>
+        <h1>Регистрация</h1>
+        <form action="{% url 'user:register' %}" method="post">
+            {% csrf_token %}
+            {{ form.errors }}
+            <div class="field-container">
+                <div class="label-container"><label for="username-id-for-label">Имя пользователя</label></div>
+                {{ form.username }}
+            </div>
+            <div class="field-container">
+                <div class="label-container"><label for="firstname-id-for-label">Имя</label></div>
+                {{ form.first_name }}
+                <div class="label-container"><label for="lastname-id-for-label">Фамилия</label></div>
+                {{ form.last_name }}
+            </div>
+            <div class="field-container">
+                <div class="label-container"><label for="email-id-for-label" class="email-label">Email</label></div>
+                {{ form.email }}
+            </div>
+            <div class="field-container">
+                <div class="label-container"><label for="password-id-for-label" class="password-label">Пароль</label></div>
+                {{ form.password1 }}
+            </div>   
+            <div class="field-container">
+                <div class="label-container"><label for="password-repeat-id-for-label" class="password2-label">Еще раз</label></div>
+                {{ form.password2 }}
+            </div>    
+            <br>
+            <div class="button-container"><input type="submit" class="submit"></div>
+        </form>
+    </main>
+    
+</body>
+</html>

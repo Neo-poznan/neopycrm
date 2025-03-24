@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+</head>
+<body>
+    <main>
+        <form action="{% url 'user:profile' %}" method="post">
+            {% csrf_token %}
+            {{ form.errors }}
+            <div class="field-container">
+                <div class="label-container"><label for="username-id-for-label">Имя пользователя</label></div>
+                {{ form.username }}
+            </div>    
+            <div class="field-container">
+                <div class="label-container"><label for="firstname-id-for-label">Имя</label></div>
+                {{ form.first_name }}
+                <div class="label-container"><label for="lastname-id-for-label">Фамилия</label></div>
+                {{ form.last_name }}
+            </div>    
+            <div class="field-container">
+                <div class="label-container"><label for="email-id-for-label" class="email-label">Email</label></div>
+                {{ form.email }}
+            </div>    
+            <br>
+            <a href="{% url 'user:change_password' %}">Поменять пароль</a>
+            <br>
+            
+            <div class="button-container"><input type="submit" class="submit"></div>
+        </form>
+    </main>
+    
+</body>
+</html>
