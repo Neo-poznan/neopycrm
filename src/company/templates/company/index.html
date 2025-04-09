@@ -1,0 +1,28 @@
+{% extends 'company/base.html' %}
+{% load static %}
+
+
+{% block css %}
+<title>Neopycrm</title>
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<main>
+    <img id="fire-gif" src="{% static 'css/gif/passion_14251500.gif' %}" alt="">
+    <div class="main-container">
+        <h1>Добро пожаловать в Neopycrm!</h1>
+        <h2>Давайте начнем!</h2>
+        <p>Ваш id пользователя: 847956</p>
+        <p>Сообщите его администратору и он добавит вас в свою компанию!</p>
+    </div>
+
+    <script>
+        console.log(document.cookie);
+    </script>
+
+</main>
+
+
+{% endblock %}

@@ -6,7 +6,7 @@ from django.db.models import QuerySet
 
 class InMemoryProvider(ABC):
     @abstractmethod
-    def get_keyvalue(self, key):
+    def get_value_by_key(self, key):
         pass
 
     @abstractmethod
@@ -38,7 +38,7 @@ class RedisInMemoryProvider(InMemoryProvider):
     def __init__(self, redis_client: redis.Redis) -> None:
         self.redis_client = redis_client
 
-    def get_keyvalue(self, key):
+    def get_value_by_key(self, key):
         result = self.redis_client.get(key)
         return result.decode('utf-8') if result else None
 
@@ -48,7 +48,7 @@ class RedisInMemoryProvider(InMemoryProvider):
     def delete_keyvalue(self, key):
         return self.redis_client.delete(key)
     
-    def crate_list(self, list_name: str, value: str) -> None:
+    def create_list(self, list_name: str, value: str) -> None:
         self.redis_client.lpush(list_name, value)
     
     def add_value_to_list(self, list_name: str, value: str) -> None:

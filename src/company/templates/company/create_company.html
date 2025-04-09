@@ -1,0 +1,15 @@
+{% extends 'company/base.html' %}
+
+{% block css %}
+<title>Создание компании</title>
+{% endblock %}
+
+{% block content %}
+<main>
+    <form action="/create_company/" method="post">
+        {% csrf_token %}
+        {{ form.name }}
+        <button type="submit"></button>
+    </form>
+</main>
+{% endblock %}

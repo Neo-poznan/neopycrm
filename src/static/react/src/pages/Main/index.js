@@ -2,7 +2,13 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import socket from '../../socket/index'
 import ACTIONS from '../../../src/socket/actions'
-import { v4 } from 'uuid'
+import axios from 'axios'
+import Cookies from 'js-cookie'
+
+axios.defaults.withCredentials = true
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
+axios.defaults.xsrfCookieName = "csrftoken";
+
 
 export default function Main() {
     const [rooms, updateRooms] = useState([]);
@@ -14,6 +20,7 @@ export default function Main() {
         })
     }, []);
 
+
     return(
         <div>
             <h1>Активные комнаты</h1>
@@ -23,14 +30,27 @@ export default function Main() {
                         <li key={roomID}>
                             {roomID}
                             <button onClick={() => {
-                                history(`/room/${roomID}`)
+                                history(`/calls/room/${roomID}`)
                             }}>JOIN ROOM</button>
                         </li>
                     ))
                 }
             </ul>
             <button onClick={() => {
-                history(`/room/${v4()}`)
+                const csrftoken = Cookies.get('csrftoken');
+                console.log(csrftoken);
+                console.log(document.cookie);
+
+                axios.post('/calls/create-group-call/', {
+                headers: {
+                'X-CSRFToken': csrftoken
+                }
+                })
+                .then(response => console.log(response.data))
+
+
+                
+                
             }}>CREATE NEW ROOM</button>
         </div>
     )

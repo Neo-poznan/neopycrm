@@ -2,28 +2,40 @@ import redis
 
 
 from user.models import User
-from core.repository import RedisInMemoryProvider, InMemoryUserConnectionStatusRepository
-from user.repository import UserDatabaseRepository
-from .repository import CallsInMemoryRepository, generate_call_url
+from user.repository import UserRepositoryInterface
+from .repository import CallsInMemoryRepositoryInterface, generate_url
+from company.repository import UserCompanyRepositoryInterface
 
 class CallsUseCase:
-    def __init__(self):
-        self._user_connection_status_in_memory_repository = InMemoryUserConnectionStatusRepository(RedisInMemoryProvider(redis.Redis(host='localhost', port=6379, db=0)))
-        self._user_database_repository = UserDatabaseRepository()
-        self._calls_in_memory_repository = CallsInMemoryRepository(RedisInMemoryProvider(redis.Redis(host='localhost', port=6379, db=0)))
-    def get_context_for_calls_main_page(self, user: User) -> dict[int, bool]:
-        all_users_in_user_company = self._user_database_repository.get_all_users_in_user_company_order_by_department(user=user)
-        print(all_users_in_user_company)
-        return {
-            'users_for_private_call':all_users_in_user_company,
-            'is_user_online_dict': self._user_connection_status_in_memory_repository.get_users_connections_statuses_dict(all_users_in_user_company)
-            }
-    
-    def private_call_creation_use_case(self, user_id: int, interlocutor_id: int) -> str:
-        call_url = generate_call_url()
-        self._calls_in_memory_repository.create_private_call(call_url=call_url, user_id_1=user_id, user_id_2=interlocutor_id)
-        return call_url
-    
+
+
+    def __init__(
+                self, user_repository: UserRepositoryInterface,
+                user_company_repository: UserCompanyRepositoryInterface,
+                calls_in_memory_repository: CallsInMemoryRepositoryInterface
+                 ):
+        self._user_database_repository = user_repository
+        self._calls_in_memory_repository = calls_in_memory_repository
+        self._user_company_repository = user_company_repository
+
+
     def private_call_room_use_case(self, call_id: str, user_id: int) -> dict:
         return self._calls_in_memory_repository.is_user_in_call_users_list(call_id=call_id, user_id=user_id)
+    
+
+    def group_call_creation_use_case(self, user: User) -> str:
+        call_id = generate_url()
+        company_id = self._user_company_repository.get_model_object_by_user(user).company.id
+        self._calls_in_memory_repository.create_group_call(call_id, company_id)
+        return call_id
+    
+    def group_call_authorization_use_case(self, user: User, call_id: str) -> bool:
+        user_company = self._user_company_repository.get_model_object_by_user(user=user)
+        user_company_entity = user_company.to_domain()
+        print(type(user_company_entity.company))
+        
+        company_id = int(self._calls_in_memory_repository.get_company_id_by_call_id(call_id))
+        print(type(company_id))
+
+        return user_company_entity.is_user_in_company(company_id)
 

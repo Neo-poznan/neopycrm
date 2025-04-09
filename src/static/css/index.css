@@ -1,0 +1,88 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    font-family: "Roboto", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
+}
+
+body {
+    margin: 0px;
+    background-image: url("backgrounds/background_for_crm.png");
+    background-size: 92%;
+    background-repeat: no-repeat;
+    background-position-x: center;
+}
+
+header {
+    background-color: white;
+    width: 100vw;
+    height: 140px;
+    border-bottom: 2px solid rgb(171, 171, 171);
+    align-items: center;
+    display: flex;
+    
+}
+
+nav {
+    margin-left: auto;
+    margin-right: 200px;
+}
+
+a {
+    color: rgb(62, 62, 62);
+
+}
+
+.nav-link {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 50px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-name {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+#logo {
+    width: 110px;
+    height: 110px;
+}
+
+#avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 4px solid gray;
+}
+
+/* Стили не для base */
+
+main {
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: top;
+    background-color: white;
+    width: 900px;
+    height: 200px;
+    border-radius: 20px;
+    border: 6px solid gray;
+    padding: 20px;
+    margin-top: 30vh;
+}
+
+#fire-gif {
+    width: 150px;
+    height: 150px;
+    margin: 30px;
+}
