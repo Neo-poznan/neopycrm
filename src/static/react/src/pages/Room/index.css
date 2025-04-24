@@ -1,0 +1,99 @@
+main {
+    width: 1350px;
+    height: 600px;
+    margin-top: 14vh;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#video-row {
+    width: 1350px;
+    height: auto;
+    background-color: white;
+    border: 5px solid rgb(159, 159, 159);
+    border-radius: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+
+
+
+#fixed-video-container {
+    width: 950px;
+    height: 600px;
+    border: 5px solid rgb(159, 159, 159);
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 1vh;
+}
+
+#center-block-container {
+    display: flex;
+}
+
+
+.button-block-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+}
+
+.mute-button-container {
+    display: inline-flex;
+    background-color: rgb(77, 77, 232);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+}
+
+.mute-button-container:hover {
+    background-color: rgb(54, 54, 221);
+}
+
+.mute-button-container i {
+    font-size: 20pt;
+    color: white;
+}
+
+.camera-button-container {
+    display: inline-flex;
+    background-color: rgb(77, 77, 232);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+}
+
+.camera-button-container:hover {
+    background-color: rgb(54, 54, 221);
+}
+.camera-button-container i {
+    font-size: 20pt;
+    color: white;
+}
+
+.exit-button-container {
+    display: inline-flex;
+    background-color: red;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    justify-content: center;
+    align-items: center;
+}
+
+.exit-button-container:hover {
+    background-color: rgb(190, 4, 4);
+}
+
+.exit-button-container i {
+    font-size: 30pt;
+    color: white;
+}

@@ -5,8 +5,15 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const {version, validate} = require('uuid');
+const redis = require('redis');
 
 const PORT = 5001
+
+const redisClient = redis.createClient({
+    url: 'redis://127.0.0.1:6379'
+  })
+
+redisClient.connect();
 
 function getClientRooms() {
     const {rooms} = io.sockets.adapter;
@@ -73,6 +80,26 @@ io.on('connection', socket => {
             iceCandidate,
         });
     });
+    socket.on(ACTIONS.FIX_VIDEO, (data) => {
+        if ( ! data.fixedPeer ) {
+            console.log('Fixed self: ', socket.id);
+            redisClient.set('fixed_peer', socket.id);
+            io.emit(ACTIONS.FIX_VIDEO, { fixedPeer: socket.id });
+        }
+        else {
+            console.log('Fixed other: ', data.fixedPeer);
+            redisClient.set('fixed_peer', data.fixedPeer);
+            io.emit(ACTIONS.FIX_VIDEO, {fixedPeer: data.fixedPeer})
+        }
+    })
+    socket.on(ACTIONS.TOGGLE_CAMERA, (data) => {
+
+        io.emit(ACTIONS.TOGGLE_CAMERA, { 
+            peerID: socket.id,
+            isOn: data.isOn
+        });
+
+    })
 });
 
 server.listen( PORT, () => {

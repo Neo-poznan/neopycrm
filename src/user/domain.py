@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-
 from datetime import datetime
+
+from django.db.models.fields.files import ImageFieldFile
 
 @dataclass
 class UserEntity:
@@ -15,6 +16,7 @@ class UserEntity:
     is_staff: bool
     is_active: bool
     date_joined: datetime
+    avatar: ImageFieldFile
 
 
     def upgrade_to_superuser(self):

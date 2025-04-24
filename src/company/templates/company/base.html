@@ -18,12 +18,12 @@
         </a>
         <nav>
         
-            <div class="nav-link"><a href="">Создать свою организацию</a></div>
-            <div class="nav-link"><a href="#">Выйти<i class="ri-logout-box-line"></i></a></div>
+            <div class="nav-link"><a href="{% url 'company:create_company' %}">Создать свою организацию</a></div>
+            <div class="nav-link"><a href="{% url 'user:logout' %}">Выйти<i class="ri-logout-box-line"></i></a></div>
             <div class="nav-link">
-                <a href="#">
+                <a href="{% url 'user:profile' %}">
                     <div class="user-info">
-                        <div class="user-name">Илья Праведников</div><img src="" alt="" id="avatar">
+                        <div class="user-name">Илья Праведников</div><img src="{% if request.user.avatar %}{{ request.user.avatar.url }}{% endif %}" alt="" id="avatar">
                     </div>
                 </a>
             </div>

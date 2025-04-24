@@ -6,6 +6,9 @@ from.domain import UserEntity
 
 class User(AbstractUser):
 
+
+    avatar = models.ImageField(upload_to='user_avatars', null=True, blank=True)
+
     def to_domain(self):
         return UserEntity(
             user_id=self.id,
@@ -18,7 +21,8 @@ class User(AbstractUser):
             email=self.email,
             is_staff=self.is_staff,
             is_active=self.is_active,
-            date_joined=self.date_joined
+            date_joined=self.date_joined,
+            avatar=self.avatar
         )
     
 
@@ -35,7 +39,8 @@ class User(AbstractUser):
             email=user.email,
             is_staff=user.is_staff,
             is_active=user.is_active,
-            date_joined=user.date_joined
+            date_joined=user.date_joined,
+
         )
     
     

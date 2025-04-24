@@ -1,0 +1,3 @@
+class AuthorizationFailed(BaseException):
+    pass
+

@@ -1,0 +1,8 @@
+#fixed-video {
+    width: 916px;
+    height: 504px;
+    background-color: gray;
+    border: 3px solid rgb(160, 160, 160);
+    border-radius: 3px;
+    pointer-events: none;
+}

@@ -1,6 +1,5 @@
 import redis
 
-
 from user.models import User
 from user.repository import UserRepositoryInterface
 from .repository import CallsInMemoryRepositoryInterface, generate_url
@@ -27,15 +26,16 @@ class CallsUseCase:
         call_id = generate_url()
         company_id = self._user_company_repository.get_model_object_by_user(user).company.id
         self._calls_in_memory_repository.create_group_call(call_id, company_id)
+        self._calls_in_memory_repository.set_group_call_admin(call_id, user.id)
         return call_id
     
     def group_call_authorization_use_case(self, user: User, call_id: str) -> bool:
         user_company = self._user_company_repository.get_model_object_by_user(user=user)
         user_company_entity = user_company.to_domain()
-        print(type(user_company_entity.company))
         
         company_id = int(self._calls_in_memory_repository.get_company_id_by_call_id(call_id))
-        print(type(company_id))
+        user_company_entity.is_user_in_company(company_id)
+        is_user_call_admin = user.id == int(self._calls_in_memory_repository.get_group_call_admin(call_id))
+        return is_user_call_admin
 
-        return user_company_entity.is_user_in_company(company_id)
 

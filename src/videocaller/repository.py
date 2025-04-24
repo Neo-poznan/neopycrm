@@ -3,7 +3,7 @@ import hashlib
 from abc import ABC, abstractmethod
 
 from .models import UniqueNumbersGenerationSequence
-from core.repository import RedisInMemoryProvider, InMemoryProvider
+from core.repository import InMemoryProvider
 
 class CallsInMemoryRepositoryInterface(ABC):
 
@@ -22,8 +22,19 @@ class CallsInMemoryRepositoryInterface(ABC):
     def get_company_id_by_call_id(self, group_call_id: str) -> int:
         pass
 
+
     @abstractmethod
     def create_group_call(self, group_call_id: str, company_id: int) -> None:
+        pass
+
+
+    @abstractmethod
+    def set_group_call_admin(self, group_call_id: str, admin_user_id: int) -> None:
+        pass
+
+
+    @abstractmethod
+    def get_group_call_admin(self, call_id: str) -> str:
         pass
 
 
@@ -49,7 +60,15 @@ class CallsInMemoryRepository(CallsInMemoryRepositoryInterface):
     def create_group_call(self, group_call_id: str, company_id: int) -> None:
         self._in_memory_client.set_keyvalue(group_call_id, company_id)
 
+    
+    def set_group_call_admin(self, call_id: str, admin_user_id: int) -> None:
+        self._in_memory_client.set_keyvalue('admin_of_call_' + call_id, admin_user_id)
 
+    
+    def get_group_call_admin(self, call_id: str) -> str:
+        return self._in_memory_client.get_value_by_key('admin_of_call_' + call_id)
+
+        
 def generate_url():
     sequence = UniqueNumbersGenerationSequence()
     unique_number = sequence.get_next_value()

@@ -38,15 +38,13 @@ export default function Main() {
             </ul>
             <button onClick={() => {
                 const csrftoken = Cookies.get('csrftoken');
-                console.log(csrftoken);
-                console.log(document.cookie);
 
                 axios.post('/calls/create-group-call/', {
                 headers: {
                 'X-CSRFToken': csrftoken
                 }
                 })
-                .then(response => console.log(response.data))
+                .then(response => {history(`/calls/room/${response.data.call_id}/`)})
 
 
                 

@@ -59,14 +59,10 @@ def group_call_authorization_view(request, call_id):
             calls_in_memory_repository=CallsInMemoryRepository(in_memory_client=RedisInMemoryProvider(redis.Redis()))
             )
         try:
-            is_in_company = use_case.group_call_authorization_use_case(request.user, call_id)
+            is_user_call_admin = use_case.group_call_authorization_use_case(request.user, call_id)
         except Exception as e:
             return HttpResponseForbidden('<h1>403 Forbidden</h1>')
-        else:
-            if is_in_company:
-                return JsonResponse({'status': 'success'})
-            else:
-                return HttpResponseForbidden('<h1>403 Forbidden</h1>')
+        return JsonResponse({'is_admin': is_user_call_admin})
      
 
 @login_required

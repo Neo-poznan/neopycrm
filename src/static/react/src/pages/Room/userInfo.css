@@ -1,0 +1,20 @@
+.user-label {
+    position: absolute;
+    text-align: center;
+    margin-top: 50px;
+    margin-left: 90px;
+}
+
+.user-label img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid rgb(56, 56, 56);
+}
+
+.user-label p {
+    background-color: rgb(55, 55, 55);
+    border-radius: 3px;
+    color: rgb(134, 134, 134);
+    padding: 2px;
+}

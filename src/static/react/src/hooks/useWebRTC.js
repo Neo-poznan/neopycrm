@@ -1,5 +1,6 @@
-import {useCallback, useEffect, useRef} from 'react';
+import {startTransition, useCallback, useEffect, useRef, useState} from 'react';
 import useStateWithCallback from './useStateWithCallback';
+import useSpeaking from './useSpeaking';
 import ACTIONS from '../socket/actions';
 import socket from '../socket'
 import freeice from 'freeice';
@@ -15,12 +16,38 @@ export default function useWebRTC(roomID) {
         }
     }, [clients, updateClients])
 
+    const [fixedPeer, updateFixedPeer] = useStateWithCallback([]);
+    const [disabledVideos, updateDisabledVideos] = useStateWithCallback({})
+
+
+    function disableVideo (peerID) {
+        console.log(peerID, 'webcam disabled');
+        updateDisabledVideos((prevState) => {
+            let newState = {
+                ...prevState,
+                [peerID]: true
+            }
+            return newState;
+        })
+    }
+
+    function enableVideo (peerID) {
+        console.log(peerID, 'webcam enabled');
+        updateDisabledVideos((prevState) => {
+            let newState = { ...prevState };
+            delete newState[peerID];
+            return newState;
+        })
+    }
+
 
     const peerConnections = useRef({});
     const localMediaStream = useRef({});
     const peerMediaElements = useRef({
         [LOCAL_VIDEO]: null,
     });
+    const fixedVideoElement = useRef(null);
+
 
     useEffect(() => {
         async function handleNewPeer(peerID, createOffer) {
@@ -44,6 +71,7 @@ export default function useWebRTC(roomID) {
             let tracksNumber = 0;
             peerConnections.current[peerID].ontrack = ({streams: [remoteStream]}) => {
                 tracksNumber++
+                
                 if (tracksNumber === 2) {
                     addNewClient(peerID, () => {
                         peerMediaElements.current[peerID].srcObject = remoteStream;
@@ -133,11 +161,101 @@ export default function useWebRTC(roomID) {
         }
 
     }, [roomID]);
+
+    useEffect(() => {
+        socket.on(ACTIONS.FIX_VIDEO, (data) => {
+            const fixedPeer = data.fixedPeer;
+            console.log('fixed peer received: ', fixedPeer);
+            if (fixedPeer === socket.id) {
+                console.log('локально закреплен локальный для этой страницы пир');
+                fixedVideoElement.current.srcObject = peerMediaElements.current[LOCAL_VIDEO].srcObject;
+            }
+            else {
+                console.log('локально закреплен удаленный для этой страницы пир');
+                fixedVideoElement.current.srcObject = peerMediaElements.current[fixedPeer].srcObject;
+            }
+        })
+    }, [])
+
+
+    useEffect(() => {
+        socket.on(ACTIONS.TOGGLE_CAMERA, (data) => {
+            console.log('Toggle camera on peer:', data.peerID);
+            let clientID;
+            if ( data.peerID===socket.id ) {
+                clientID = LOCAL_VIDEO;
+            }
+            else {
+                clientID = data.peerID;
+            }
+            
+            if (data.isOn) {
+                enableVideo(clientID);
+            }
+            else {
+                disableVideo(clientID);
+            }
+            
+        })
+    }, [])
+
     const provideMediaRef = useCallback((id, node) => {
+        console.log('provide:', peerMediaElements.current[id], node);
         peerMediaElements.current[id] = node;
+        console.log('after provide:', peerMediaElements.current[id]);
+
     }, []);
+
+    const provideFixedMediaRef = useCallback((node) => {
+        console.log('Fixed video ref');
+        fixedVideoElement.current = node;
+    }, []);
+
+    function toggleMicrophone() {
+        if (localMediaStream.current) {
+            const audioTrack = localMediaStream.current.getAudioTracks()[0]; // Получаем аудио-трек
+            if (audioTrack) {
+                audioTrack.enabled = !audioTrack.enabled; // Переключаем состояние
+                console.log(`Микрофон ${audioTrack.enabled ? 'включен' : 'выключен'}`);
+            }
+        }
+    }
+
+    function toggleCamera() {
+        if (localMediaStream.current) {
+            const videoTrack = localMediaStream.current.getVideoTracks()[0]; // Получаем видео-трек
+            if (videoTrack) {
+                videoTrack.enabled = !videoTrack.enabled; // Переключаем состояние
+                console.log(`Камера ${videoTrack.enabled ? 'включена' : 'выключена'}`);
+                socket.emit(ACTIONS.TOGGLE_CAMERA, { 
+                    peerID: socket.id,
+                    isOn: videoTrack.enabled
+                });
+            }
+        }
+    }
+
+    function fixVideo(elementID) {
+        if ( elementID===LOCAL_VIDEO ) {
+            console.log('отправлен сигнал о закреплении локального для этой страницы видео');
+            socket.emit(ACTIONS.FIX_VIDEO, { fixedPeer: socket.id });
+        }
+        else {
+            console.log('отправлен сигнал о закреплении удаленного для этой страницы видео');
+            socket.emit(ACTIONS.FIX_VIDEO, { fixedPeer: elementID });
+        }
+    }
+
+    
     return {
         clients,
-        provideMediaRef
+        fixedPeer,
+        disabledVideos,
+        provideMediaRef,
+        toggleCamera,
+        toggleMicrophone,
+        provideFixedMediaRef,
+        fixVideo
     };
 }
+

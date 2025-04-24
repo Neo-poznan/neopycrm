@@ -106,7 +106,13 @@ class UserUpdateForm(forms.ModelForm):
         'required': True
     }))
 
+    avatar = forms.ImageField(widget=forms.FileInput(attrs={
+        'class': 'custom-file-input',
+        'id': 'avatar-id-for-label',
+        'required': False
+    }))
+
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email']
+        fields = ['username', 'first_name', 'last_name', 'email', 'avatar']
 

@@ -1,54 +1,93 @@
-import { useParams } from 'react-router'
-import { useEffect } from 'react'
+import { data, useParams } from 'react-router'
+import { useEffect, useRef } from 'react'
 import useWebRTC from '../../hooks/useWebRTC';
+import Video from './video'
+import './index.css'
+import axios from 'axios';
+import FixedVideo from './fixedVideo'
+import Cookies from 'js-cookie';
+import socket from '../../socket';
 
 export default function Room() {
     const {id: roomID} = useParams();
 
-    const {clients, provideMediaRef} = useWebRTC(roomID);
+    const {clients, fixedPeer, disabledVideos, provideMediaRef, toggleCamera, toggleMicrophone, provideFixedMediaRef, fixVideo} = useWebRTC(roomID);
 
     console.log(clients);
 
-    useEffect(() => {
-        const sessionCookie = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('sessionid'))
-        ?.split('=')[1];
+    let isAdmin = useRef(false)
 
-        fetch(`/calls/group-call-authorization/${roomID}/`,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Cookies': `sessionid=${sessionCookie}`
+    useEffect(() => {
+        axios.get(`/calls/group-call-authorization/${roomID}/`)
+        .then(
+            response => {
+                if (response.status === 403) {
+                    alert('У вас нет доступа к этому звонку!');
                 }
+                isAdmin.current = response.data.is_admin;
+
             }
         )
-        .then(response => {
-            console.log(response.status);
-            if (response.status === 403) {
-                alert('У вас нет доступа к этому звонку!');
-            }
-
-        })
     }, [])
 
-    return(
-        <div>
-           {clients.map((clientID) => {
-            return (
-                <div key={clientID}>
-                    <video
-                    ref = {instance => {
-                        provideMediaRef(clientID, instance);
+    useEffect(() => {
+        socket.on('connect', () => {
+            console.log('connected with id:', socket.id);
+            const data = {
+                peer_id: socket.id
+            }
+            const csrftoken = Cookies.get('csrftoken');
+            console.log(document.cookie);
+            fetch('/user/set-peer-user-info/',  {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(data)
+            })
+        })
 
-                    }}
-                    autoPlay
-                    playsInline
-                    muted={clientID === 'LOCAL_VIDEO'}
-                    />
+    }, [])
+
+
+
+    return(
+        <div id='container'>
+            <main>
+                <div id='video-row'> 
+                    {clients.map((clientID) => {
+                            console.log(isAdmin);
+                            return (<Video clientID={ clientID } provideMediaRef={ provideMediaRef } fix={ fixVideo } disabledVideos={ disabledVideos }></Video>)
+                    })}
                 </div>
-            )
-           })}
+                <div id="center-block-container">
+                    <div id="fixed-video-container">
+                        <FixedVideo peerID={ fixedPeer } provideMediaRef={ provideFixedMediaRef }></FixedVideo>
+                        <div class="button-block-container">
+                            <div class="mute-button-container" onClick={ toggleMicrophone }>
+                                <i class="ri-mic-off-line"></i>
+                            </div>
+                            <div class="camera-button-container" onClick={ toggleCamera }>
+                                <i class="ri-camera-off-line"></i>
+                            </div>
+                            <div class="exit-button-container">
+                                <i class="ri-close-large-line"></i>
+                            </div>
+                        </div>    
+                    </div>
+                    <div id="chat-container">
+                        <div id="chat">
+                            <div class="message-container">
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit neque distinctio doloremque tenetur accusantium itaque, 
+                                nulla, ratione minima autem officia, voluptate rerum ipsa quam debitis corrupti quis hic recusandae quaerat.</p>
+                            </div>
+                        </div>
+
+                    </div>
+            </div>
+            </main>
+
+
         </div>
     )
 }

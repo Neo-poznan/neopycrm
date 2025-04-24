@@ -6,10 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный кабинет</title>
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link
+    href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+    rel="stylesheet"
+/>
 </head>
 <body>
     <main>
-        <form action="{% url 'user:profile' %}" method="post">
+        <form action="{% url 'user:profile' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.errors }}
             <div class="field-container">
@@ -25,7 +29,15 @@
             <div class="field-container">
                 <div class="label-container"><label for="email-id-for-label" class="email-label">Email</label></div>
                 {{ form.email }}
-            </div>    
+            </div>
+            <div class="avatar-field-container">
+                <img src="{% if request.user.avatar %}{{ request.user.avatar.url }}{% endif %}" alt="" id="preview-avatar">
+                <div class="avatar-preview-alt">
+                    <i class="ri-add-large-line"></i>
+                </div>
+                <br>
+                {{ form.avatar }}
+            </div> 
             <br>
             <a href="{% url 'user:change_password' %}">Поменять пароль</a>
             <br>
@@ -33,6 +45,14 @@
             <div class="button-container"><input type="submit" class="submit"></div>
         </form>
     </main>
+    <script>
+        document.getElementById('avatar-id-for-label').onchange = function () {
+            var src = URL.createObjectURL(this.files[0]);
+            document.getElementById('preview-avatar').src = src;
+            document.getElementsByClassName('avatar-preview-alt')[0].style.display = 'none';
+        }
+
+    </script>
     
 </body>
 </html>
