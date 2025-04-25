@@ -1,6 +1,5 @@
 import {startTransition, useCallback, useEffect, useRef, useState} from 'react';
 import useStateWithCallback from './useStateWithCallback';
-import useSpeaking from './useSpeaking';
 import ACTIONS from '../socket/actions';
 import socket from '../socket'
 import freeice from 'freeice';
@@ -18,7 +17,14 @@ export default function useWebRTC(roomID) {
 
     const [fixedPeer, updateFixedPeer] = useStateWithCallback([]);
     const [disabledVideos, updateDisabledVideos] = useStateWithCallback({})
+    const [activePeers, updataActivePeers] = useStateWithCallback({})
 
+    const peerConnections = useRef({});
+    const localMediaStream = useRef();
+    const peerMediaElements = useRef({
+        [LOCAL_VIDEO]: null,
+    });
+    const fixedVideoElement = useRef(null);
 
     function disableVideo (peerID) {
         console.log(peerID, 'webcam disabled');
@@ -40,14 +46,67 @@ export default function useWebRTC(roomID) {
         })
     }
 
+    function setPeerActive (peerID) {
+        console.log(peerID, 'active now');
+        updataActivePeers((prevState) => {
+            let newState = { 
+                ...prevState,
+                [peerID]: true
+            }
+            return newState
+        })
+    }
 
-    const peerConnections = useRef({});
-    const localMediaStream = useRef({});
-    const peerMediaElements = useRef({
-        [LOCAL_VIDEO]: null,
-    });
-    const fixedVideoElement = useRef(null);
+    function setPeerNotActive (peerID) {
+        console.log(peerID, 'not active now');
+        updataActivePeers((prevState) => {
+            let newState = { ...prevState };
+            delete newState[peerID];
+            return newState;
+        })
+    }
 
+    const [ isSpeaking, updateSpeaking ] = useState(false); 
+
+    useEffect(() => {
+        if ( localMediaStream.current ) {
+            console.log('start scan volume', localMediaStream.current);
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const analyser = audioContext.createAnalyser();
+            const microphone = audioContext.createMediaStreamSource(localMediaStream.current);
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            analyser.fftSize = 256; // Размер Fast Fourier Transform
+            analyser.smoothingTimeConstant = 0.8; // Сглаживание данных
+            microphone.connect(analyser);
+
+            const checkVolume = () => {
+                analyser.getByteFrequencyData(dataArray); // Получаем данные частот
+                const volume = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length; // Средняя громкость
+
+                // Устанавливаем порог громкости (например, 20)
+                if (volume > 6) {
+                    updateSpeaking(true)
+                    console.log('speaking...');
+                } else {
+                    updateSpeaking(false)
+                }
+
+                requestAnimationFrame(checkVolume); // Рекурсивно вызываем для постоянного анализа
+            };
+
+            checkVolume();            
+        }
+
+    }, [localMediaStream.current]);
+
+    useEffect(() =>{
+        console.log('is speaking:', isSpeaking);
+        socket.emit(ACTIONS.SPEAKING, {
+            peerID: socket.id,
+            isSpeaking: isSpeaking
+        });
+    }, [isSpeaking])
 
     useEffect(() => {
         async function handleNewPeer(peerID, createOffer) {
@@ -199,6 +258,26 @@ export default function useWebRTC(roomID) {
         })
     }, [])
 
+    useEffect(() => {
+        socket.on(ACTIONS.SPEAKING, (data) => {
+            let clientID;
+            if ( data.peerID===socket.id ) {
+                clientID = LOCAL_VIDEO;
+            }
+            else {
+                clientID = data.peerID
+            }
+
+            if (data.isSpeaking) {
+                setPeerActive(clientID);
+            }
+            else {
+                setPeerNotActive(clientID);
+            }
+        })
+
+    }, [])
+
     const provideMediaRef = useCallback((id, node) => {
         console.log('provide:', peerMediaElements.current[id], node);
         peerMediaElements.current[id] = node;
@@ -251,6 +330,7 @@ export default function useWebRTC(roomID) {
         clients,
         fixedPeer,
         disabledVideos,
+        activePeers,
         provideMediaRef,
         toggleCamera,
         toggleMicrophone,

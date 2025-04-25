@@ -100,6 +100,14 @@ io.on('connection', socket => {
         });
 
     })
+
+    socket.on(ACTIONS.SPEAKING, (data) => {
+        console.log('is Speaking:', data.isSpeaking);
+        io.emit(ACTIONS.SPEAKING, {
+            peerID: socket.id,
+            isSpeaking: data.isSpeaking
+        });
+    })
 });
 
 server.listen( PORT, () => {

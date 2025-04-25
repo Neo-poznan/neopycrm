@@ -11,7 +11,7 @@ import socket from '../../socket';
 export default function Room() {
     const {id: roomID} = useParams();
 
-    const {clients, fixedPeer, disabledVideos, provideMediaRef, toggleCamera, toggleMicrophone, provideFixedMediaRef, fixVideo} = useWebRTC(roomID);
+    const {clients, fixedPeer, disabledVideos, activePeers, provideMediaRef, toggleCamera, toggleMicrophone, provideFixedMediaRef, fixVideo} = useWebRTC(roomID);
 
     console.log(clients);
 
@@ -57,7 +57,7 @@ export default function Room() {
                 <div id='video-row'> 
                     {clients.map((clientID) => {
                             console.log(isAdmin);
-                            return (<Video clientID={ clientID } provideMediaRef={ provideMediaRef } fix={ fixVideo } disabledVideos={ disabledVideos }></Video>)
+                            return (<Video clientID={ clientID } provideMediaRef={ provideMediaRef } fix={ fixVideo } disabledVideos={ disabledVideos } activePeers={ activePeers }></Video>)
                     })}
                 </div>
                 <div id="center-block-container">

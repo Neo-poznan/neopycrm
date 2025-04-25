@@ -2,6 +2,7 @@ import './video.css';
 import UserInfo from './userInfo';
 
 export default function Video(props) {
+    console.log('info about speaking from video component:', props.clientID, props.activePeers[props.clientID]);
 
     return (
         <div className="video-container" key={props.clientID}>
@@ -25,6 +26,9 @@ export default function Video(props) {
             playsInline
             muted={props.clientID === 'LOCAL_VIDEO'}
             className="user-video"
+            style={{
+                border: props.activePeers[props.clientID] ? '5px solid green' : '3px solid rgb(160, 160, 160)',
+            }}
             />
 
         </div>

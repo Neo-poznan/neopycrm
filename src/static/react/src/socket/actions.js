@@ -9,7 +9,8 @@ const ACTIONS = {
     ICE_CANDIDATE: 'ice-candidate',
     SESSION_DESCRIPTION: 'session-description',
     FIX_VIDEO: 'fix-video',
-    TOGGLE_CAMERA: 'toggle-camera'
+    TOGGLE_CAMERA: 'toggle-camera',
+    SPEAKING: 'SPEAKING'
 };
 
 module.exports = ACTIONS;
